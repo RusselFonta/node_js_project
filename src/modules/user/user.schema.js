@@ -19,11 +19,16 @@ export const deleteUserSchema = z.object({
   }),
 });
 
-// Schema for GET /v1/users/ pagination query parameters
-export const pagination = z.object({
+export const getUsersQuerySchema = z.object({
   query: z.object({
-    page: z.string().transform((trans) => (trans ? Math.max(1, parseInt(trans, 10)) : 1)),
-    limit: z.string().transform((trans) => (trans ? Math.max(1, parseInt(trans, 10)) : 10)),
-    search: z.string().default(''),
+    page: z
+      .string()
+      .optional()
+      .transform((trans) => (trans ? Math.max(1, parseInt(trans, 10)) : 1)),
+    limit: z
+      .string()
+      .optional()
+      .transform((trans) => (trans ? Math.max(1, parseInt(trans, 10)) : 10)),
+    search: z.string().optional().default(''),
   }),
 });
