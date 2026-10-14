@@ -1,39 +1,66 @@
 import { userService } from './user.service.js';
 
 export const userController = {
-  // GET /users
-  getAllUsers: async (_req, res) => {
-    const users = await userService.getAllUsers();
-    res.status(200).json({
-      status: 'success',
-      data: users,
-    });
+  // GET /v1/users (avec pagination)
+  getAllUsers: async (req, res, next) => {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const skip = (page - 1) * limit;
+
+      const { users, total } = await userService.getAllUsers({ skip, limit });
+
+      return res.status(200).json({
+        success: true,
+        data: users,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total,
+          hasPrevPage: page > 1,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
   },
 
-  // GET /users/:id
-  getUserById: async (req, res) => {
-    const user = await userService.getUserById(req.params.id);
-    res.status(200).json({
-      status: 'success',
-      data: user,
-    });
+  // GET /v1/users/:id
+  getUserById: async (req, res, next) => {
+    try {
+      const user = await userService.getUserById(req.params.id);
+      return res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
   },
 
-  // POST /users
-  createUser: async (req, res) => {
-    const user = await userService.createUser(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: user,
-    });
+  // POST /v1/users
+  createUser: async (req, res, next) => {
+    try {
+      const user = await userService.createUser(req.body);
+      return res.status(201).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
   },
 
-  // DELETE /users/:id
-  deleteUser: async (req, res) => {
-    await userService.deleteUser(req.params.id);
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
+  // DELETE /v1/users/:id
+  deleteUser: async (req, res, next) => {
+    try {
+      await userService.deleteUser(req.params.id);
+      return res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
   },
 };
